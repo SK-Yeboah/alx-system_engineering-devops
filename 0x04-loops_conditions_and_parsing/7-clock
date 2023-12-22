@@ -3,10 +3,12 @@
 
 hour=0
 
-while [ $hour -lt 13 ]; do
+while [ $hour -le 12 ]; do
+    echo "Hour:$hour"
     minute=1
     while [ $minute -lt 60 ]; do
-        printf "%02d:%02d\n" $hour $minute
+         echo $minute
+        # printf "%02d:%02d\n" $hour $minute
         ((minute++))
     done
     ((hour++))
