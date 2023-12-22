@@ -3,10 +3,5 @@
 # showing only the part of the name after the first dash for non-hidden files
 
 for file in *; do
-    # Check if the file is not hidden
-    if [[ ! $file == .* ]]; then
-        # Use parameter expansion to extract the part of the name after the first dash
-        display_name="${file#*-}"
-        echo "$display_name"
-    fi
+  echo "$file" | cut -d '-' -f 2;
 done
