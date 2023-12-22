@@ -3,7 +3,7 @@
 
 count=1
 
-while [ $count -le 20 ]; do
+while [ $count -lt 21 ]; do
     case $count in
         4)
             echo "$count and then bad luck from China"
