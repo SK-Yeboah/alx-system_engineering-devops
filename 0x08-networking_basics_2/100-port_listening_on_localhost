@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Check if the script is run with superuser privileges
+if [ "$EUID" -ne 0 ]; then
+    echo "This script requires superuser privileges. Please run as root."
+    exit 1
+fi
+
+# Check if netcat is installed
+if ! command -v nc &> /dev/null; then
+    echo "Netcat (nc) is not installed. Please install it before running this script."
+    exit 1
+fi
+
+# Listen on port 98
+echo "Starting my script. Press Ctrl+C to stop."
+nc -l -p 98
+
