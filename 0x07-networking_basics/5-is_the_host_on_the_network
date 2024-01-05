@@ -20,4 +20,3 @@ if [ $? -eq 0 ]; then
 else
     echo "The host $ip_address is not reachable."
 fi
-
