@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-
 # Create a backup of the current /etc/hosts file
+
 cp /etc/hosts ~/hosts.new
 
 # Use sed to modify the backup file (hosts.new)
