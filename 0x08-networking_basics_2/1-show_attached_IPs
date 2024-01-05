@@ -1,7 +1,42 @@
-#!/bin/bash
+#!/usr/bin/bash
+#script that displays all active IPv4 IPs on the machine it’s executed on
 
 echo "Active IPv4 IPs on the machine:"
-echo "--------------------------------"
+eheck if the script is run with root privileges
+if [[ $EUID -ne 0 ]]; then
+	    echo "Please run this script as root or with sudo."
+	        exit 1
+fi
+
+# Display header
+echo "Listening Ports with PID and Program Name:"
+echo "-----------------------------------------"
+
+# Get listening sockets using netstat
+listening_sockets=$(netstat -1 -tlnp 2>/dev/null | grep 'LISTEN')
+
+# Check if there are any listening sockets
+if [ -z "$listening_sockets" ]; then
+	    echo "No listening sockets found."
+	        exit 0
+fi
+
+# Display information for each listening socket
+echo -e "PID\tPort\tProgram"
+echo "-----------------------------"
+
+while read -r line; do
+	    # Extract PID and port from netstat output
+	        pid=$(echo "$line" | awk '{print $7}' | awk -F'/' '{print $1}')
+		    port=$(echo "$line" | awk '{print $4}' | awk -F':' '{print $2}')
+		        
+		        # Get program name using lsof
+			    program=$(lsof -p "$pid" 2>/dev/null | awk 'NR==2 {print $1}')
+			        
+			        # Display the information
+				    echo -e "$pid\t$port\t$program"
+			    done <<< "$listening_sockets"
+			    
 
 # Use the ifconfig command to get information about network interfaces
 ifconfig -a | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | grep -vE "^127\.0\.0\.1"
