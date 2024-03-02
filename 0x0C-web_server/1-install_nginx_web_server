@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # installs nginx and configures it on a remote server
-
-#Update package list and install nginx with -y option
+# Update package list and install nginx with -y option
 sudo apt-get update
 sudo apt-get install -y nginx
 
@@ -17,9 +16,15 @@ echo "<html><head><title>Hello World!</title></head><body><p>Hello World!</p></b
 # Check if nginx is serving the expected content
 curl -s localhost | grep -q "Hello World!"
 
-# Display success or failure message based on the curl result
-if [ $? -eq 0 ]; then
+# Capture the exit code of the last command
+exit_code=$?
+
+# Display success or failure message based on the exit code
+if [ $exit_code -eq 0 ]; then
     echo "Nginx installed and configured successfully. Web server is serving 'Hello World!' at http://localhost/"
 else
     echo "Error: Nginx installation or configuration failed."
 fi
+
+# Return the appropriate exit code
+exit $exit_code
