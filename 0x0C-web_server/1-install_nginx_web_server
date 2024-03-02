@@ -1,14 +1,13 @@
-#!/usr/bin/env bash
-# installs nginx and configures it on a remote server
-# Update package list and install nginx with -y option
-sudo apt-get update
-sudo apt-get install -y nginx
+sudo apt-get update -y -qq && \
+	 sudo apt-get install nginx -y
 
-# Configure nginx to listen on port 80
-sudo sed -i 's/^\(listen .*\)80;/\180;/' /etc/nginx/sites-available/default
+echo -e "\nSetting up some minor stuff.\n"
 
-# Restart nginx without using systemctl
-sudo service nginx restart
+# starting nginx service
+sudo service nginx start
+
+# allowing nginx on firewall
+sudo ufw allow 'Nginx HTTP'
 
 # Give the user ownership to website files for easy editing
 sudo chown -R "$USER":"$USER" /var/www/html
@@ -17,22 +16,9 @@ sudo chmod -R 755 /var/www
 # Backup default index
 cp /var/www/html/index.nginx-debian.html /var/www/html/index.nginx-debian.html.bckp
 
+# Creating new index
+echo -e "Hello World!" | dd status=none of=/var/www/html/index.nginx-debian.html
 
-# Create a simple HTML page with "Hello World!"
-echo "<html><head><title>Hello World!</title></head><body><p>Hello World!</p></body></html>" | sudo tee /var/www/html/index.html > /dev/null
+# Restarting nginx
+sudo service nginx restart
 
-# Check if nginx is serving the expected content
-curl -s localhost | grep -q "Hello World!"
-
-# Capture the exit code of the last command
-exit_code=$?
-
-# Display success or failure message based on the exit code
-if [ $exit_code -eq 0 ]; then
-    echo "Nginx installed and configured successfully. Web server is serving 'Hello World!' at http://localhost/"
-else
-    echo "Error: Nginx installation or configuration failed."
-fi
-
-# Return the appropriate exit code
-exit $exit_code
