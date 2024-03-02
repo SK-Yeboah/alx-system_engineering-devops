@@ -4,40 +4,36 @@
 # Serve a page that would return a Hello World string
 #
 
-# Update package list and install nginx with -y option
-sudo apt-get update
-sudo apt-get install -y nginx
+echo -e "Updating and installing Nginx.\n"
+sudo apt-get update -y -qq && \
+	 sudo apt-get install nginx -y
 
-# Configure nginx to listen on port 80
-sudo sed -i 's/^\(listen .*\)80;/\180;/' /etc/nginx/sites-available/default
+echo -e "\nSetting up some minor stuff.\n"
 
-# Restart nginx without using systemctl
+# starting nginx service
+sudo service nginx start
+
+# allowing nginx on firewall
+sudo ufw allow 'Nginx HTTP'
+
+# Give the user ownership to website files for easy editing
+sudo chown -R "$USER":"$USER" /var/www/html
+sudo chmod -R 755 /var/www
+
+# Backup default index
+cp /var/www/html/index.nginx-debian.html /var/www/html/index.nginx-debian.html.bckp
+
+# Creating new index
+echo -e "Hello World!" > /var/www/html/index.nginx-debian.html
+
+# Setting up /redirect_me to a youtube video
+sudo sed -i '24i\	rewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;' /etc/nginx/sites-available/default
+
+# Set up a 404 page
+echo "Ceci n'est pas une page" >> /var/www/html/error_404.html
+sudo sed -i '25i\	error_page 404 /error_404.html;' /etc/nginx/sites-available/default
+
+# Restarting nginx
 sudo service nginx restart
 
-# Create a simple HTML page with "Hello World!" for the root directory
-echo "<html><head><title>Hello World!</title></head><body><p>Hello World!</p></body></html>" | sudo tee /var/www/html/index.html > /dev/null
-
-# Create a new HTML page for the redirection target
-echo "<html><head><title>Redirected Page</title></head><body><p>This page has been redirected!</p></body></html>" | sudo tee /var/www/html/redirected_page.html > /dev/null
-
-# Configure Nginx to perform a 301 redirect from /redirect_me to the new page
-sudo sed -i '/location \/ {/a \\n\tlocation \/redirect_me { \n\t\treturn 301 http://$host/redirected_page.html; \n\t}' /etc/nginx/sites-available/default
-
-# Restart nginx without using systemctl
-sudo service nginx restart
-
-# Check if the redirection is working by querying /redirect_me
-curl -s -I localhost/redirect_me | grep -q "301 Moved Permanently"
-
-# Capture the exit code of the last command
-exit_code=$?
-
-# Display success or failure message based on the exit code
-if [ $exit_code -eq 0 ]; then
-    echo "Nginx configured successfully. /redirect_me is redirecting with a 301 Moved Permanently."
-else
-    echo "Error: Nginx configuration for redirection failed."
-fi
-
-# Return the appropriate exit code
-exit $exit_code
+echo -e "\nCompleted.\n"
