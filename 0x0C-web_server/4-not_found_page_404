@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+#Configure your Nginx server to have a custom 404 page that contains the string Ceci n'est pas une page.
+
+# Update package list and install nginx with -y option
+sudo apt-get update
+sudo apt-get install -y nginx
+
+# Configure nginx to listen on port 80
+sudo sed -i 's/^\(listen .*\)80;/\180;/' /etc/nginx/sites-available/default
+
+# Restart nginx without using systemctl
+sudo service nginx restart
+
+# Create a simple HTML page for the custom 404 error
+echo "<html><head><title>404 Not Found</title></head><body><p>Ceci n'est pas une page</p></body></html>" | sudo tee /var/www/html/404.html > /dev/null
+
+# Configure Nginx to use the custom 404 page
+sudo sed -i '/server_name _;/a \\n\terror_page 404 /404.html;\n\tlocation = /404.html {\n\t\troot /var/www/html;\n\t\tinternal;\n\t}' /etc/nginx/sites-available/default
+
+# Restart nginx without using systemctl
+sudo service nginx restart
+
+# Check if the custom 404 page is working by querying a non-existent page
+curl -sI localhost/xyz | grep -q "404 Not Found"
+
+# Capture the exit code of the last command
+exit_code=$?
+
+# Display success or failure message based on the exit code
+if [ $exit_code -eq 0 ]; then
+    echo "Nginx configured successfully. Custom 404 page is working."
+else
+    echo "Error: Nginx configuration for custom 404 page failed."
+fi
+
+# Return the appropriate exit code
+exit $exit_code
