@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+#Configures a new ubuntu machine by installing
+
+# Update package list and install nginx with -y option
+sudo apt-get update
+sudo apt-get install -y nginx
+
+# Configure nginx to listen on port 80
+sudo sed -i 's/^\(listen .*\)80;/\180;/' /etc/nginx/sites-available/default
+
+# Restart nginx without using systemctl
+sudo service nginx restart
+
+# Create a temporary configuration file for redirection
+sudo tee /etc/nginx/sites-available/redirect_me <<EOF
+server {
+    listen 80;
+    server_name _;
+
+    location /redirect_me {
+        return 301 https://www.redirected-page.com;
+    }
+
+    # Other server configurations
+}
+EOF
+
+# Create a symbolic link to enable the new configuration
+sudo ln -s /etc/nginx/sites-available/redirect_me /etc/nginx/sites-enabled/
+
+# Test nginx configuration for any syntax errors
+sudo nginx -t
+
+# If the configuration is successful, reload nginx to apply changes
+if [ $? -eq 0 ]; then
+    sudo service nginx reload
+    echo "Nginx configuration reloaded successfully for redirection."
+else
+    echo "Error: Nginx configuration test failed. Please check configuration file syntax."
+fi
