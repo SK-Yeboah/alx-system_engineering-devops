@@ -1,40 +1,36 @@
 #!/usr/bin/env bash
-#Configures a new ubuntu machine by installing
+# Configures a new ubuntu machine by installing
+# Nginx where it should be listening on port 80
+# Serve a page that would return a Hello World string
+#
 
-# Update package list and install nginx with -y option
-sudo apt-get update
-sudo apt-get install -y nginx
 
-# Configure nginx to listen on port 80
-sudo sed -i 's/^\(listen .*\)80;/\180;/' /etc/nginx/sites-available/default
+echo -e "Updating and installing Nginx.\n"
+sudo apt-get update -y -qq && \
+         sudo apt-get install nginx -y
 
-# Restart nginx without using systemctl
+echo -e "\nSetting up some minor stuff.\n"
+
+# starting nginx service
+sudo service nginx start
+
+# allowing nginx on firewall
+sudo ufw allow 'Nginx HTTP'
+
+# Give the user ownership to website files for easy editing
+sudo chown -R "$USER":"$USER" /var/www/html
+sudo chmod -R 755 /var/www
+
+# Backup default index
+cp /var/www/html/index.nginx-debian.html /var/www/html/index.nginx-debian.html.bckp
+
+# Creating new index
+echo -e "Hello World!" > /var/www/html/index.nginx-debian.html
+
+# Setting up /redirect_me to a youtube video
+sudo sed -i '24i\       rewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;' /etc/nginx/sites-available/default
+
+# Restarting nginx
 sudo service nginx restart
 
-# Create a temporary configuration file for redirection
-sudo tee /etc/nginx/sites-available/redirect_me <<EOF
-server {
-    listen 80;
-    server_name _;
-
-    location /redirect_me {
-        return 301 https://www.redirected-page.com;
-    }
-
-    # Other server configurations
-}
-EOF
-
-# Create a symbolic link to enable the new configuration
-sudo ln -s /etc/nginx/sites-available/redirect_me /etc/nginx/sites-enabled/
-
-# Test nginx configuration for any syntax errors
-sudo nginx -t
-
-# If the configuration is successful, reload nginx to apply changes
-if [ $? -eq 0 ]; then
-    sudo service nginx reload
-    echo "Nginx configuration reloaded successfully for redirection."
-else
-    echo "Error: Nginx configuration test failed. Please check configuration file syntax."
-fi
+echo -e "\nCompleted.\n"
