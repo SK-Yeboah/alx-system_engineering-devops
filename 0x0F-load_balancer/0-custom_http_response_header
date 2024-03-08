@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #Configure ngnix so the http response contails a custom header
 
 # Install Nginx if not already installed
