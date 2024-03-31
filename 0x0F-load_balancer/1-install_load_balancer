@@ -16,8 +16,8 @@ frontend http_front
 
 backend http_back
     balance roundrobin
-    server 444725-web-01 444725-web-01:80 check
-    server 444725-web-02 444725-web-02:80 check
+    server 444725-web-01 107.22.145.62:80 check
+    server 444725-web-02 54.84.201.74:80 check
 EOF
 
 # Enable HAProxy as a service
