@@ -1,4 +1,5 @@
 #!/bin/bash
+#HAProxy configuration
 
 # Install HAProxy
 sudo apt update
