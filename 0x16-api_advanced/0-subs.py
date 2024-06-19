@@ -8,15 +8,16 @@ import requests
 
 
 def number_of_subscribers(subreddit):
-    # URL for Reddit API to get subreddit information
-    url = "https://www.reddit.com/r/{}/about.json".format(subreddit),
-    # Setting custom User-Agent to avoid Too Many Requests error
-    headers = {"User-Agent": "Custom"}
-    # Sending GET request to Reddit API
-    response = requests.get(url, headers=headers)
+    """
+    Function that queries the Reddit API
+    - If not a valid subreddit, return 0.
+    """
+    req = requests.get(
+        "https://www.reddit.com/r/{}/about.json".format(subreddit),
+        headers={"User-Agent": "Custom"},
+    )
 
-    if response.status_code == 200:
-        return response.json().get("data").get("subscribers")
+    if req.status_code == 200:
+        return req.json().get("data").get("subscribers")
     else:
         return 0
-    
